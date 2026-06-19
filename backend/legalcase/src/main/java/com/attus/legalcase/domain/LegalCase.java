@@ -67,4 +67,17 @@ public class LegalCase {
     @Column(name = "deleted_at")
     @Setter(AccessLevel.NONE)
     private LocalDateTime deletedAt;
+
+    public LegalCase(String cnjNumber, String plaintiff, String defendant,
+                     String court, String judicialDistrict,
+                     BigDecimal claimValue, LocalDate filingDate) {
+        this.cnjNumber = cnjNumber;
+        this.plaintiff = plaintiff;
+        this.defendant = defendant;
+        this.court = court;
+        this.judicialDistrict = judicialDistrict;
+        this.claimValue = claimValue;
+        this.filingDate = filingDate;
+        this.status = CaseStatus.FILED;
+    }
 }

@@ -7,14 +7,13 @@ import java.util.regex.Pattern;
 
 public class CnjValidator implements ConstraintValidator<ValidCnj, String> {
 
-    // NNNNNNN-DD.AAAA.J.TR.OOOO
     private static final Pattern CNJ_PATTERN =
             Pattern.compile("^\\d{7}-\\d{2}\\.\\d{4}\\.\\d\\.\\d{2}\\.\\d{4}$");
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) {
-            return true; // nullability handled by @NotBlank
+            return true;
         }
         if (!CNJ_PATTERN.matcher(value).matches()) {
             return false;
@@ -30,7 +29,6 @@ public class CnjValidator implements ConstraintValidator<ValidCnj, String> {
         String court       = formatted.substring(18, 20);
         String origin      = formatted.substring(21, 25);
 
-        // ISO 7064 MOD 97-10: sequential+year+segment+court+origin+checkDigits  => mod 97 == 1
         String base = sequential + year + segment + court + origin + checkDigits;
         return mod97(base) == 1;
     }

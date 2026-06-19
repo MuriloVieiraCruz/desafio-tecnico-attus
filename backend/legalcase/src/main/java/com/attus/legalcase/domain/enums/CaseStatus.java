@@ -6,11 +6,11 @@ import java.util.Set;
 
 public enum CaseStatus {
 
-    FILED,        // Distribuído
-    IN_PROGRESS,  // Em andamento
-    SUSPENDED,    // Suspenso
-    ARCHIVED,     // Arquivado
-    CLOSED;       // Baixado
+    FILED,
+    IN_PROGRESS,
+    SUSPENDED,
+    ARCHIVED,
+    CLOSED;
 
     private static final Map<CaseStatus, Set<CaseStatus>> ALLOWED_TRANSITIONS = Map.of(
             FILED,       EnumSet.of(IN_PROGRESS),

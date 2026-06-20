@@ -5,6 +5,8 @@ import { CreateLegalCaseRequest, UpdateLegalCaseRequest } from '../../../core/mo
 import { LegalCaseService } from '../../../core/services/legal-case.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { cnjValidator } from '../../../core/validators/cnj.validator';
+import { ConfirmDialog } from '../../../core/components/confirm-dialog/confirm-dialog';
+import { CurrencyInputDirective } from '../../../core/directives/currency-input.directive';
 
 const notFuture: ValidatorFn = (control) => {
   const value = control.value as string | null;
@@ -14,7 +16,7 @@ const notFuture: ValidatorFn = (control) => {
 
 @Component({
   selector: 'app-legal-case-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ConfirmDialog, CurrencyInputDirective],
   templateUrl: './legal-case-form.html',
 })
 export class LegalCaseForm {
@@ -29,6 +31,7 @@ export class LegalCaseForm {
   readonly editing = signal(false);
   readonly loading = signal(false);
   readonly submitting = signal(false);
+  readonly confirmingCancel = signal(false);
 
   readonly form = this.fb.group({
     cnjNumber: ['', [Validators.required, cnjValidator]],
@@ -92,6 +95,18 @@ export class LegalCaseForm {
   }
 
   cancel(): void {
+    if (this.form.dirty) {
+      this.confirmingCancel.set(true);   // só pergunta se há algo a perder
+    } else {
+      this.router.navigate(['/legal-cases']);
+    }
+  }
+
+  confirmCancel(): void {
     this.router.navigate(['/legal-cases']);
+  }
+
+  dismissCancel(): void {
+    this.confirmingCancel.set(false);
   }
 }

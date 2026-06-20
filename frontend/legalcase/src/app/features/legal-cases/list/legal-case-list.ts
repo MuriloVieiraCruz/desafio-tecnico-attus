@@ -1,15 +1,24 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StatusBadge } from '../../../core/components/status-badge/status-badge';
-import { CASE_STATUSES, CASE_STATUS_LABELS, LegalCase, LegalCaseFilter } from '../../../core/models/legal-case';
+import { CASE_STATUSES, CASE_STATUS_LABELS, LegalCase, LegalCaseFilter, CaseStatus } from '../../../core/models/legal-case';
 import { LegalCaseService } from '../../../core/services/legal-case.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ConfirmDialog } from '../../../core/components/confirm-dialog/confirm-dialog';
+import { ChangeStatusDialog } from '../../../core/components/change-status-dialog/change-status-dialog';
 
 @Component({
   selector: 'app-legal-case-list',
-  imports: [FormsModule, DatePipe, CurrencyPipe, StatusBadge],
+  imports: [
+    FormsModule, 
+    DatePipe, 
+    CurrencyPipe, 
+    StatusBadge, 
+    ConfirmDialog, 
+    ChangeStatusDialog
+  ],
   templateUrl: './legal-case-list.html',
 })
 export class LegalCaseList {
@@ -27,6 +36,12 @@ export class LegalCaseList {
   readonly totalPages = signal(0);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
+  readonly toChangeStatus = signal<LegalCase | null>(null);
+  readonly toDelete = signal<LegalCase | null>(null);
+  readonly deleteMessage = computed(() => {
+    const c = this.toDelete();
+    return c ? `Tem certeza que deseja excluir o processo ${c.cnjNumber}?` : '';
+  });
 
   filter: LegalCaseFilter = { status: null, party: null, court: null, filingDateFrom: null, filingDateTo: null };
 
@@ -72,15 +87,42 @@ export class LegalCaseList {
   }
 
   deleteCase(c: LegalCase): void {
-    if (!confirm(`Excluir o processo ${c.cnjNumber}?`)) return;
+    this.toDelete.set(c);
+  }
+
+  confirmDelete(): void {
+    const c = this.toDelete();
+    if (!c) return;
     this.service.delete(c.id).subscribe({
       next: () => {
         this.notifications.success('Processo excluído com sucesso.');
         if (this.cases().length === 1 && this.pageIndex() > 0) {
           this.pageIndex.update(i => i - 1);
         }
+        this.toDelete.set(null);
         this.load();
       },
+      error: () => this.toDelete.set(null),
+    });
+  }
+
+  cancelDelete(): void {
+    this.toDelete.set(null);
+  }
+
+  openStatus(c: LegalCase): void { this.toChangeStatus.set(c); }
+  closeStatus(): void { this.toChangeStatus.set(null); }
+
+  changeStatus(newStatus: CaseStatus): void {
+    const c = this.toChangeStatus();
+    if (!c) return;
+    this.service.changeStatus(c.id, { newStatus }).subscribe({
+      next: () => {
+        this.notifications.success('Status atualizado.');
+        this.toChangeStatus.set(null);
+        this.load();
+      },
+      error: () => this.toChangeStatus.set(null),
     });
   }
 }

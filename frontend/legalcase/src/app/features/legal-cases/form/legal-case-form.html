@@ -21,35 +21,35 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label class="mb-1 block text-sm text-ink-muted" for="plaintiff">Autor</label>
-          <input id="plaintiff" type="text" formControlName="plaintiff"
+          <input id="plaintiff" type="text" formControlName="plaintiff" placeholder="Nome da parte autora"
                  class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
                  [class.border-red-400]="showError('plaintiff')" />
           @if (showError('plaintiff')) { <p class="mt-1 text-xs text-red-600">Informe o autor.</p> }
         </div>
         <div>
           <label class="mb-1 block text-sm text-ink-muted" for="defendant">Réu</label>
-          <input id="defendant" type="text" formControlName="defendant"
+          <input id="defendant" type="text" formControlName="defendant" placeholder="Nome da parte ré"
                  class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
                  [class.border-red-400]="showError('defendant')" />
           @if (showError('defendant')) { <p class="mt-1 text-xs text-red-600">Informe o réu.</p> }
         </div>
         <div>
           <label class="mb-1 block text-sm text-ink-muted" for="court">Vara</label>
-          <input id="court" type="text" formControlName="court"
+          <input id="court" type="text" formControlName="court" placeholder="Ex.: 1ª Vara da Fazenda Pública"
                  class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
                  [class.border-red-400]="showError('court')" />
           @if (showError('court')) { <p class="mt-1 text-xs text-red-600">Informe a vara.</p> }
         </div>
         <div>
           <label class="mb-1 block text-sm text-ink-muted" for="judicialDistrict">Comarca</label>
-          <input id="judicialDistrict" type="text" formControlName="judicialDistrict"
+          <input id="judicialDistrict" type="text" formControlName="judicialDistrict" placeholder="Ex.: São Paulo"
                  class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none" />
         </div>
         <div>
           <label class="mb-1 block text-sm text-ink-muted" for="claimValue">Valor da causa</label>
-          <input id="claimValue" type="number" step="0.01" formControlName="claimValue"
-                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
-                 [class.border-red-400]="showError('claimValue')" />
+          <input id="claimValue" type="text" inputmode="numeric" appCurrency formControlName="claimValue" placeholder="R$ 0,00"
+                class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                [class.border-red-400]="showError('claimValue')" />
           @if (showError('claimValue')) { <p class="mt-1 text-xs text-red-600">Valor não pode ser negativo.</p> }
         </div>
         <div>
@@ -71,4 +71,14 @@
       </div>
     </form>
   }
+
+  <app-confirm-dialog
+    [open]="confirmingCancel()"
+    title="Descartar alterações?"
+    message="As informações preenchidas serão perdidas."
+    confirmLabel="Descartar"
+    cancelLabel="Continuar editando"
+    (confirm)="confirmCancel()"
+    (cancel)="dismissCancel()"
+  />
 </div>

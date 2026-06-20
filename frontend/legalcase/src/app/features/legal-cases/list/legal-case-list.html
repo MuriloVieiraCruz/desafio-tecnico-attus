@@ -10,7 +10,6 @@
     </button>
   </div>
 
-  <!-- filtros -->
   <div class="rounded-xl border border-line bg-surface p-4">
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <label class="flex flex-col gap-1 text-sm">
@@ -52,14 +51,13 @@
     </div>
   </div>
 
-  <!-- tabela / estados -->
   <div class="overflow-x-auto rounded-xl border border-line bg-surface">
     @if (loading()) {
       <div class="p-8 text-center text-ink-muted">Carregando…</div>
     } @else if (cases().length === 0) {
       <div class="p-8 text-center text-ink-muted">Nenhum processo encontrado.</div>
     } @else {
-      <table class="w-full text-left text-sm">
+      <table class="w-full text-center text-sm">
         <thead class="border-b border-line text-xs uppercase tracking-wide text-ink-muted">
           <tr>
             <th class="px-4 py-3">CNJ</th>
@@ -68,8 +66,8 @@
             <th class="px-4 py-3">Vara</th>
             <th class="px-4 py-3">Status</th>
             <th class="px-4 py-3">Distribuição</th>
-            <th class="px-4 py-3 text-right">Valor</th>
-            <th class="px-4 py-3 text-right">Ações</th>
+            <th class="px-4 py-3">Valor</th>
+            <th class="px-4 py-3">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -83,11 +81,13 @@
               <td class="px-4 py-3 text-ink-muted">{{ c.filingDate ? (c.filingDate | date:'dd/MM/yyyy') : '—' }}</td>
               <td class="px-4 py-3 text-right text-ink">{{ c.claimValue != null ? (c.claimValue | currency:'BRL') : '—' }}</td>
               <td class="px-4 py-3">
-                <div class="flex justify-end gap-2">
+                <div class="flex justify-center gap-2">
                   <button type="button" (click)="editCase(c.id)"
                           class="rounded-md px-2 py-1 text-xs font-medium text-primary hover:bg-surface-2">Editar</button>
                   <button type="button" (click)="deleteCase(c)"
                           class="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50">Excluir</button>
+                  <button type="button" (click)="openStatus(c)"
+                          class="rounded-md px-2 py-1 text-xs font-medium text-ink-muted hover:bg-surface-2">Status</button>
                 </div>
               </td>
             </tr>
@@ -97,7 +97,6 @@
     }
   </div>
 
-  <!-- paginação -->
   @if (totalPages() > 1) {
     <div class="flex items-center justify-between text-sm">
       <span class="text-ink-muted">Página {{ pageIndex() + 1 }} de {{ totalPages() }}</span>
@@ -109,4 +108,21 @@
       </div>
     </div>
   }
+
+  <app-confirm-dialog
+    [open]="!!toDelete()"
+    title="Excluir processo"
+    [message]="deleteMessage()"
+    confirmLabel="Excluir"
+    [danger]="true"
+    (confirm)="confirmDelete()"
+    (cancel)="cancelDelete()"
+  />
+
+  <app-change-status-dialog
+    [open]="!!toChangeStatus()"
+    [current]="toChangeStatus()?.status ?? null"
+    (confirm)="changeStatus($event)"
+    (cancel)="closeStatus()"
+  />
 </div>

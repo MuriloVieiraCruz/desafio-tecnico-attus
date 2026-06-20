@@ -8,9 +8,9 @@ export interface LegalCase {
   court: string;
   judicialDistrict: string | null;
   claimValue: number | null;
-  filingDate: string | null;   // ISO date (yyyy-MM-dd)
+  filingDate: string | null;
   status: CaseStatus;
-  createdAt: string;           // ISO datetime
+  createdAt: string;
   updatedAt: string;
 }
 

@@ -1,0 +1,112 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-ink">Processos</h1>
+      <p class="text-sm text-ink-muted">{{ totalElements() }} processo(s) cadastrado(s)</p>
+    </div>
+    <button type="button" (click)="newCase()"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">
+      Novo processo
+    </button>
+  </div>
+
+  <!-- filtros -->
+  <div class="rounded-xl border border-line bg-surface p-4">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="text-ink-muted">Status</span>
+        <select [(ngModel)]="filter.status"
+                class="rounded-lg border border-line bg-surface px-3 py-2 text-ink">
+          <option [ngValue]="null">Todos</option>
+          @for (s of statuses; track s) {
+            <option [ngValue]="s">{{ statusLabels[s] }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="text-ink-muted">Parte</span>
+        <input [(ngModel)]="filter.party" type="text" placeholder="autor ou réu"
+               class="rounded-lg border border-line bg-surface px-3 py-2 text-ink" />
+      </label>
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="text-ink-muted">Vara</span>
+        <input [(ngModel)]="filter.court" type="text"
+               class="rounded-lg border border-line bg-surface px-3 py-2 text-ink" />
+      </label>
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="text-ink-muted">Distribuído de</span>
+        <input [(ngModel)]="filter.filingDateFrom" type="date"
+               class="rounded-lg border border-line bg-surface px-3 py-2 text-ink" />
+      </label>
+      <label class="flex flex-col gap-1 text-sm">
+        <span class="text-ink-muted">Distribuído até</span>
+        <input [(ngModel)]="filter.filingDateTo" type="date"
+               class="rounded-lg border border-line bg-surface px-3 py-2 text-ink" />
+      </label>
+    </div>
+    <div class="mt-3 flex gap-2">
+      <button type="button" (click)="applyFilters()"
+              class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong">Filtrar</button>
+      <button type="button" (click)="clearFilters()"
+              class="rounded-lg border border-line px-4 py-2 text-sm text-ink-muted hover:bg-surface-2">Limpar</button>
+    </div>
+  </div>
+
+  <!-- tabela / estados -->
+  <div class="overflow-x-auto rounded-xl border border-line bg-surface">
+    @if (loading()) {
+      <div class="p-8 text-center text-ink-muted">Carregando…</div>
+    } @else if (cases().length === 0) {
+      <div class="p-8 text-center text-ink-muted">Nenhum processo encontrado.</div>
+    } @else {
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-line text-xs uppercase tracking-wide text-ink-muted">
+          <tr>
+            <th class="px-4 py-3">CNJ</th>
+            <th class="px-4 py-3">Autor</th>
+            <th class="px-4 py-3">Réu</th>
+            <th class="px-4 py-3">Vara</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Distribuição</th>
+            <th class="px-4 py-3 text-right">Valor</th>
+            <th class="px-4 py-3 text-right">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of cases(); track c.id) {
+            <tr class="border-b border-line last:border-0 hover:bg-surface-2">
+              <td class="px-4 py-3 font-mono text-xs text-ink">{{ c.cnjNumber }}</td>
+              <td class="px-4 py-3 text-ink">{{ c.plaintiff }}</td>
+              <td class="px-4 py-3 text-ink">{{ c.defendant }}</td>
+              <td class="px-4 py-3 text-ink-muted">{{ c.court }}</td>
+              <td class="px-4 py-3"><app-status-badge [status]="c.status" /></td>
+              <td class="px-4 py-3 text-ink-muted">{{ c.filingDate ? (c.filingDate | date:'dd/MM/yyyy') : '—' }}</td>
+              <td class="px-4 py-3 text-right text-ink">{{ c.claimValue != null ? (c.claimValue | currency:'BRL') : '—' }}</td>
+              <td class="px-4 py-3">
+                <div class="flex justify-end gap-2">
+                  <button type="button" (click)="editCase(c.id)"
+                          class="rounded-md px-2 py-1 text-xs font-medium text-primary hover:bg-surface-2">Editar</button>
+                  <button type="button" (click)="deleteCase(c)"
+                          class="rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50">Excluir</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  <!-- paginação -->
+  @if (totalPages() > 1) {
+    <div class="flex items-center justify-between text-sm">
+      <span class="text-ink-muted">Página {{ pageIndex() + 1 }} de {{ totalPages() }}</span>
+      <div class="flex gap-2">
+        <button type="button" (click)="goToPage(pageIndex() - 1)" [disabled]="pageIndex() === 0"
+                class="rounded-lg border border-line px-3 py-1.5 text-ink hover:bg-surface-2 disabled:opacity-40">Anterior</button>
+        <button type="button" (click)="goToPage(pageIndex() + 1)" [disabled]="pageIndex() + 1 >= totalPages()"
+                class="rounded-lg border border-line px-3 py-1.5 text-ink hover:bg-surface-2 disabled:opacity-40">Próxima</button>
+      </div>
+    </div>
+  }
+</div>

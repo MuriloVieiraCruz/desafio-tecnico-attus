@@ -1,0 +1,84 @@
+<div class="mx-auto max-w-2xl space-y-6">
+  <h1 class="text-2xl font-semibold text-ink">{{ editing() ? 'Editar processo' : 'Novo processo' }}</h1>
+
+  @if (loading()) {
+    <div class="rounded-xl border border-line bg-surface p-8 text-center text-ink-muted">Carregando…</div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()"
+          class="space-y-4 rounded-xl border border-line bg-surface p-6">
+
+      <div>
+        <label class="mb-1 block text-sm text-ink-muted" for="cnjNumber">Número CNJ</label>
+        <input id="cnjNumber" type="text" formControlName="cnjNumber"
+               placeholder="0000000-00.0000.0.00.0000"
+               class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none disabled:bg-surface-2 disabled:text-ink-muted"
+               [class.border-red-400]="showError('cnjNumber')" />
+        @if (showError('cnjNumber')) {
+          <p class="mt-1 text-xs text-red-600">Informe um número CNJ válido.</p>
+        }
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="plaintiff">Autor</label>
+          <input id="plaintiff" type="text" formControlName="plaintiff" placeholder="Nome da parte autora"
+                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                 [class.border-red-400]="showError('plaintiff')" />
+          @if (showError('plaintiff')) { <p class="mt-1 text-xs text-red-600">Informe o autor.</p> }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="defendant">Réu</label>
+          <input id="defendant" type="text" formControlName="defendant" placeholder="Nome da parte ré"
+                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                 [class.border-red-400]="showError('defendant')" />
+          @if (showError('defendant')) { <p class="mt-1 text-xs text-red-600">Informe o réu.</p> }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="court">Vara</label>
+          <input id="court" type="text" formControlName="court" placeholder="Ex.: 1ª Vara da Fazenda Pública"
+                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                 [class.border-red-400]="showError('court')" />
+          @if (showError('court')) { <p class="mt-1 text-xs text-red-600">Informe a vara.</p> }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="judicialDistrict">Comarca</label>
+          <input id="judicialDistrict" type="text" formControlName="judicialDistrict" placeholder="Ex.: São Paulo"
+                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="claimValue">Valor da causa</label>
+          <input id="claimValue" type="text" inputmode="numeric" appCurrency formControlName="claimValue" placeholder="R$ 0,00"
+                class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                [class.border-red-400]="showError('claimValue')" />
+          @if (showError('claimValue')) { <p class="mt-1 text-xs text-red-600">Valor não pode ser negativo.</p> }
+        </div>
+        <div>
+          <label class="mb-1 block text-sm text-ink-muted" for="filingDate">Data de distribuição</label>
+          <input id="filingDate" type="date" formControlName="filingDate"
+                 class="w-full rounded-lg border border-line px-3 py-2 text-ink focus:border-primary focus:outline-none"
+                 [class.border-red-400]="showError('filingDate')" />
+          @if (showError('filingDate')) { <p class="mt-1 text-xs text-red-600">Data não pode ser futura.</p> }
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="submit" [disabled]="submitting() || form.invalid"
+                class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-strong disabled:opacity-50">
+          {{ submitting() ? 'Salvando…' : 'Salvar' }}
+        </button>
+        <button type="button" (click)="cancel()"
+                class="rounded-lg border border-line px-4 py-2 text-sm text-ink-muted hover:bg-surface-2">Cancelar</button>
+      </div>
+    </form>
+  }
+
+  <app-confirm-dialog
+    [open]="confirmingCancel()"
+    title="Descartar alterações?"
+    message="As informações preenchidas serão perdidas."
+    confirmLabel="Descartar"
+    cancelLabel="Continuar editando"
+    (confirm)="confirmCancel()"
+    (cancel)="dismissCancel()"
+  />
+</div>
